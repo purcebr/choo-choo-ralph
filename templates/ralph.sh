@@ -29,8 +29,10 @@ while [ $iteration -lt $MAX_ITERATIONS ]; do
   echo "=== Iteration $((iteration + 1)) ==="
   echo "---"
 
-  # Check if any ready work is available (no blockers, not in_progress by another agent)
-  available=$(bd ready --assignee=ralph -n 100 --json 2>/dev/null | jq -r 'length')
+  # Check if any open molecule roots are available
+  # NOTE: bd ready uses blocker-aware semantics that treats epics with open children
+  # as blocked. For molecule orchestrators, we use bd list --ready which only checks status.
+  available=$(bd list --ready --assignee ralph --type epic -n 100 --json 2>/dev/null | jq -r 'length')
 
   if [ "$available" -eq 0 ]; then
     echo "No ready work available. Done."
@@ -42,16 +44,21 @@ while [ $iteration -lt $MAX_ITERATIONS ]; do
 
   # Let Claude see available work, pick one, claim it, and execute
   claude --dangerously-skip-permissions --output-format stream-json --verbose -p "
-Run \`bd ready --assignee=ralph -n 100 --sort=priority\` to see available tasks.
+Run \`bd list --ready --assignee ralph --type epic --sort priority -n 100\` to see available molecule roots.
 
 Also run \`bd list --status=in_progress --assignee=ralph\` to see what tasks other Ralph agents are currently working on.
 
 Decide which task to work on next. Selection criteria:
-1. Priority - higher priority tasks are more important
+1. Priority - higher priority tasks are more important (P0 before P1, etc.)
 2. Avoid conflicts - if other Ralph agents have tasks in_progress, you MUST pick a completely different epic. Do NOT work on any task that is a child, parent, or sibling of an in-progress task. Stay away from the entire epic tree that another Ralph is working on.
 3. If all high-priority epics are being worked on by other Ralphs, pick a lower-priority epic that is completely unrelated
 
 Pick ONE task, claim it with \`bd update <id> --status in_progress\`, then execute it according to its description.
+
+IMPORTANT - Finding ready steps within a molecule:
+When the task description tells you to find ready steps, use:
+  \`bd --no-daemon ready --mol <your-molecule-id>\`
+Do NOT use \`bd ready --parent <id>\` as it will incorrectly show no results due to parent-child blocking semantics.
 
 One iteration = complete the task AND all its child tasks (if any).
 

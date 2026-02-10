@@ -1,6 +1,6 @@
 {
   "name": "choo-choo-ralph",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Autonomous coding using the Ralph Wiggum technique - simple loops, persistent memory, one task at a time",
   "author": {
     "name": "MJ Meyer",
