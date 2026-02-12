@@ -1,0 +1,41 @@
+# {{PROJECT_NAME}}
+
+## Build & Test
+
+```bash
+# Build
+{{BUILD_CMD}}
+
+# Test
+{{TEST_CMD}}
+
+# Lint / Typecheck
+{{LINT_CMD}}
+```
+
+## Beads (Task Management)
+
+This project uses [beads](https://github.com/steveyegge/beads) for task tracking.
+
+```bash
+bd ready                    # Show tasks ready to work on
+bd ready --assignee=ralph   # Show tasks assigned to Ralph
+bd list --status=in_progress # What's being worked on
+bd update <id> --status in_progress  # Claim a task
+bd close <id>               # Complete a task
+bd comment <id> "note"      # Add a comment
+```
+
+## Ralph (Autonomous Loop)
+
+```bash
+./ralph.sh 10               # Run 10 iterations (standalone)
+./ralph-dashboard.sh 10     # Run 10 iterations (with dashboard monitoring)
+./ralph-schedule.sh "11pm" . 50  # Schedule 50 iterations at 11pm
+```
+
+Dashboard: http://localhost:3001 (project ID: {{DASHBOARD_PROJECT_ID}})
+
+## Conventions
+
+- {{CONVENTIONS}}
